@@ -1,0 +1,3 @@
+python-dotenv==1.0.0
+-e git+https://github.com/openai/automated-interpretability.git@43ce9d4ae58f03d450187ca6f7c673e437a0be44#egg=neuron_explainer&subdirectory=neuron-explainer
+Flask==2.3.2
