@@ -111,7 +111,7 @@ Here are a few examples of where the scorer could be improved, mostly around inc
 
 - [GPT2-SMALL@6:2294](https://www.neuronpedia.org/gpt2-small/6/2294) - top score of 33 is `the words 'chapter' and 'on'`. however, another explanation `words and phrases describing the structure of written media, especially chapters and themes` has a lower score yet explains the full context better
 
-- [GPT2-SMALL@6:281](https://www.neuronpedia.org/gpt2-small/6/281) - top score is `the word 'study'`, while `"study" in the context of research` got a slightly lower score
+- [GPT2-SMALL@6:281](https://www.neuronpedia.org/gpt2-small/6/1072) - top score is GPT4's `female pronouns and related phrases`, because the token "she" is activated, but it's actually only activated as part of the word "shelled", which has nothing to do with female pronouns - the human explanation by user `turnippls` is far better
 
 - [GPT2-SMALL@6:2381](https://www.neuronpedia.org/gpt2-small/6/2381) - top score is `the word 'time'` but the activations are about spending a portion of time and the other explanation should probably score higher
 
