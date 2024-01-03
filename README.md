@@ -14,26 +14,32 @@ When players submit an explanation on [Neuronpedia](https://neuronpedia.org), we
 
 This is a Flask server with only one endpoint that is called by the Neuronpedia server: `POST /score`
 
-The code is mostly plugging in OpenAI's [Automated Interpretability](https://github.com/openai/automated-interpretability) Neuron Explainer [demo](https://github.com/openai/automated-interpretability/blob/main/neuron-explainer/demos/generate_and_score_explanation.ipynb). The way _that_ works is that for each explanation, it asks GPT to guess ("simulate") what the activations will be for each of the 20 texts. Then it does a correlation between what the actual activations are vs the simulated ones. The correlation is the score.
+The code is mostly plugging in OpenAI's [Automated Interpretability](https://github.com/hijohnnylin/automated-interpretability) Neuron Explainer [demo](https://github.com/openai/automated-interpretability/blob/main/neuron-explainer/demos/generate_and_score_explanation.ipynb). The way _that_ works is that for each explanation, it asks GPT to guess ("simulate") what the activations will be for each of the 20 texts. Then it does a correlation between what the actual activations are vs the simulated ones. The correlation is the score.
 
 It's not perfect, but it works well a lot of the time. For details, including the exact prompts used, [read their paper](https://openaipublic.blob.core.windows.net/neuron-explainer/paper/index.html) or [code](https://github.com/openai/automated-interpretability).
 
 ## Warning About Cost
 
-Based on a standard 20 activation texts, each text with 64 tokens, and using the default `text-davinci-003` simulator, it costs a whopping **30 cents** (USD) to do one score for an explanation. So, be careful and make sure to set both a hard and soft limit on your OpenAI account. You could also start with sending the scorer fewer activation texts.
+Based on a standard 20 activation texts, each text with 64 tokens, and using the default `gpt-4` simulator, it costs a whopping **30 cents** (USD) to do one score for an explanation. So, be careful and make sure to set both a hard and soft limit on your OpenAI account. You could also start with sending the scorer fewer activation texts.
 
 If you end up doing serious batches of work, it may be worth it to apply for [Research Credits](https://openai.com/form/researcher-access-program) from OpenAI.
 
 ## Usage
 
-Create a `.env` file that contains:
+Clone the repository:
+
+```
+git clone https://github.com/hijohnnylin/neuronpedia-scorer
+```
+
+In the new directory, create a `.env` file that contains:
 
 ```
 OPENAI_API_KEY="[insert your OpenAI key here]"
 SERVER_KEY="[empty string if you aren't hosting it publicly]"
 ```
 
-Then, run the following to install requirements and start a local Flask server at port 5000:
+Then, run the following to install requirements and start the local Flask server at port 5000:
 
 ```
 pip install -r requirements.txt

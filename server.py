@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SECRET = os.environ["SERVER_KEY"]  # server-to-server secret to prevent external abuse
-SIMULATOR_MODEL_NAME = (
-    "text-davinci-003"  # only this model supports logprobs, which is needed for scoring
-)
+# SIMULATOR_MODEL_NAME = (
+#     "text-davinci-003"  # v1 scorer
+# )
+SIMULATOR_MODEL_NAME = "gpt-4"  # v2 scorer
 MAX_CONCURRENT = 20  # maximum number of concurrent OpenAI calls
 
 from neuron_explainer.activations.activations import (
@@ -17,7 +18,10 @@ from neuron_explainer.explanations.calibrated_simulator import (
 )
 from neuron_explainer.explanations.prompt_builder import PromptFormat
 from neuron_explainer.explanations.scoring import simulate_and_score
-from neuron_explainer.explanations.simulator import ExplanationNeuronSimulator
+from neuron_explainer.explanations.simulator import (
+    ExplanationNeuronSimulator,
+    LogprobFreeExplanationTokenSimulator,
+)
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -61,11 +65,19 @@ async def create():
 
     # Simulate and score the explanation.
     simulator = UncalibratedNeuronSimulator(
-        ExplanationNeuronSimulator(
+        # V1 Scorer
+        # ExplanationNeuronSimulator(
+        #     SIMULATOR_MODEL_NAME,
+        #     explanation,
+        #     max_concurrent=MAX_CONCURRENT,
+        #     prompt_format=PromptFormat.INSTRUCTION_FOLLOWING,
+        # )
+        # V2 Scorer
+        LogprobFreeExplanationTokenSimulator(
             SIMULATOR_MODEL_NAME,
             explanation,
             max_concurrent=MAX_CONCURRENT,
-            prompt_format=PromptFormat.INSTRUCTION_FOLLOWING,
+            prompt_format=PromptFormat.HARMONY_V4,
         )
     )
     scored_simulation = await simulate_and_score(simulator, activationRecords)
