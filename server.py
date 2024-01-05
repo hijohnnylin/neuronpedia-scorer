@@ -7,7 +7,7 @@ SECRET = os.environ["SERVER_KEY"]  # server-to-server secret to prevent external
 # SIMULATOR_MODEL_NAME = (
 #     "text-davinci-003"  # v1 scorer
 # )
-SIMULATOR_MODEL_NAME = "gpt-4"  # v2 scorer
+SIMULATOR_MODEL_NAME = "gpt-3.5-turbo-1106"  # v2 scorer
 MAX_CONCURRENT = 20  # maximum number of concurrent OpenAI calls
 
 from neuron_explainer.activations.activations import (
@@ -76,12 +76,12 @@ async def create():
         LogprobFreeExplanationTokenSimulator(
             SIMULATOR_MODEL_NAME,
             explanation,
+            json_mode=True,
             max_concurrent=MAX_CONCURRENT,
             prompt_format=PromptFormat.HARMONY_V4,
         )
     )
     scored_simulation = await simulate_and_score(simulator, activationRecords)
-
     print(f"score={scored_simulation.get_preferred_score():.2f}")
     return jsonify(
         {
