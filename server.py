@@ -63,6 +63,16 @@ async def create():
             )
         )
 
+    # Preprocess activation tokens
+    # GPT struggles with non-ascii so we turn them into string representations
+    for activationRecord in activationRecords:
+        for i, token in enumerate(activationRecord.tokens):
+            activationRecord.tokens[i] = token \
+                                        .replace("<|endoftext|>", "<|not_endoftext|>") \
+                                        .replace(" 55", "_55") \
+                                        .encode('ascii', errors='backslashreplace') \
+                                        .decode('ascii')
+
     # Simulate and score the explanation.
     simulator = UncalibratedNeuronSimulator(
         # V1 Scorer
@@ -82,6 +92,11 @@ async def create():
         )
     )
     scored_simulation = await simulate_and_score(simulator, activationRecords)
+
+    # Replace the processed tokens with the original tokens so they match
+    for i, activation in enumerate(data["activations"]):
+        scored_simulation.scored_sequence_simulations[i].simulation.tokens = activation["tokens"]
+
     print(f"score={scored_simulation.get_preferred_score():.2f}")
     return jsonify(
         {
