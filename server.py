@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,7 +8,7 @@ SECRET = os.environ["SERVER_KEY"]  # server-to-server secret to prevent external
 # SIMULATOR_MODEL_NAME = (
 #     "text-davinci-003"  # v1 scorer
 # )
-SIMULATOR_MODEL_NAME = "gpt-3.5-turbo-1106"  # v2 scorer
+SIMULATOR_MODEL_NAME = "ft:gpt-3.5-turbo-1106:neuronpedia::8s1b8LZk"  # fine-tuned scorer # "gpt-3.5-turbo-1106"  # v2 scorer
 MAX_CONCURRENT = 20  # maximum number of concurrent OpenAI calls
 
 from neuron_explainer.activations.activations import (
@@ -16,6 +17,7 @@ from neuron_explainer.activations.activations import (
 from neuron_explainer.explanations.calibrated_simulator import (
     UncalibratedNeuronSimulator,
 )
+from neuron_explainer.explanations.few_shot_examples import FewShotExampleSet
 from neuron_explainer.explanations.prompt_builder import PromptFormat
 from neuron_explainer.explanations.scoring import simulate_and_score
 from neuron_explainer.explanations.simulator import (
@@ -67,11 +69,12 @@ async def create():
     # GPT struggles with non-ascii so we turn them into string representations
     for activationRecord in activationRecords:
         for i, token in enumerate(activationRecord.tokens):
-            activationRecord.tokens[i] = token \
-                                        .replace("<|endoftext|>", "<|not_endoftext|>") \
-                                        .replace(" 55", "_55") \
-                                        .encode('ascii', errors='backslashreplace') \
-                                        .decode('ascii')
+            activationRecord.tokens[i] = (
+                token.replace("<|endoftext|>", "<|not_endoftext|>")
+                .replace(" 55", "_55")
+                .encode("ascii", errors="backslashreplace")
+                .decode("ascii")
+            )
 
     # Simulate and score the explanation.
     simulator = UncalibratedNeuronSimulator(
@@ -88,6 +91,7 @@ async def create():
             explanation,
             json_mode=True,
             max_concurrent=MAX_CONCURRENT,
+            few_shot_example_set=FewShotExampleSet.JL_FINE_TUNED,
             prompt_format=PromptFormat.HARMONY_V4,
         )
     )
@@ -95,7 +99,9 @@ async def create():
 
     # Replace the processed tokens with the original tokens so they match
     for i, activation in enumerate(data["activations"]):
-        scored_simulation.scored_sequence_simulations[i].simulation.tokens = activation["tokens"]
+        scored_simulation.scored_sequence_simulations[i].simulation.tokens = activation[
+            "tokens"
+        ]
 
     print(f"score={scored_simulation.get_preferred_score():.2f}")
     return jsonify(
@@ -107,4 +113,4 @@ async def create():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5001)
